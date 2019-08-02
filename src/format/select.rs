@@ -1,4 +1,4 @@
-use sqlparser::ast::{Select, SelectItem};
+use sqlparser::ast::{Select, SelectItem, TableWithJoins, TableFactor, Join};
 
 use crate::options::{Delimiter, Options};
 use crate::format::base::Format;
@@ -79,7 +79,41 @@ fn format_select_projection(s: &Select, opt: &Options, indent: usize) -> String 
 
 impl Format for Select {
     fn format(&self, opt: &Options, indent: usize) -> String {
+        let mut components = Vec::new();
+
         let select_projection = format_select_projection(self, opt, indent);
-        select_projection
+        components.push(select_projection);
+
+        if !self.from.is_empty() {
+            let from = self.from.format(opt, indent);
+            components.push(from);
+        }
+        opt.body_delimiter.join(&components)
+    }
+}
+
+impl Format for Vec<TableWithJoins> {
+    fn format(&self, opt: &Options, indent: usize) -> String {
+        opt.join_with_commas(
+            &format!("{} ", Keyword::From.format(opt, indent)),
+            &self.iter()
+                .enumerate()
+                .map(|(i, t)| {
+                    if i == 0 {
+                        t.format(opt, 0)
+                    } else {
+                        t.format(opt, 1)
+                    }
+                })
+                .collect::<Vec<String>>(),
+            "",
+            indent + 1
+        )
+    }
+}
+
+impl Format for TableWithJoins {
+    fn format(&self, opt: &Options, indent: usize) -> String {
+        format!("{}", self)
     }
 }

@@ -9,6 +9,7 @@ pub enum Keyword {
     Asc,
     Desc,
     Distinct,
+    From,
     Limit,
     OrderBy,
     Select,

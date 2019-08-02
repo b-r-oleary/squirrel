@@ -55,7 +55,7 @@ impl Options {
             .enumerate()
             .map(|(i, alt)| {
                 (
-                    (n - i),
+                    (n - i - 1),
                     format!(
                         "{}{}{}",
                         prefix,
