@@ -8,6 +8,7 @@ pub enum Keyword {
     As,
     Asc,
     Desc,
+    Distinct,
     Limit,
     OrderBy,
     Select,
@@ -15,9 +16,13 @@ pub enum Keyword {
 }
 
 impl Format for Keyword {
-    fn format(&self, opt: &Options, _indent: usize) -> String {
+    fn format(&self, opt: &Options, indent: usize) -> String {
         let keyword_string = format!("{:?}", self);
         let normalized = keyword_string.to_snake_case().replace("_", " ");
-        opt.keyword_case.apply(&normalized)
+        let keyword = opt.keyword_case.apply(&normalized);
+        if indent == 0 {
+            return keyword
+        }
+        opt.indent.to_string() + &keyword
     }
 }

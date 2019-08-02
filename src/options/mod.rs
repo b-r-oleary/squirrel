@@ -2,6 +2,8 @@ use std::string::ToString;
 
 pub struct Options {
     pub line_limit: usize,
+    pub alias_position: usize,
+    pub alias_quotes: Option<bool>,
     pub indent: Indent,
     pub keyword_case: Case,
     pub body_delimiter: Whitespace,
@@ -15,6 +17,8 @@ impl Default for Options {
     fn default() -> Options {
         Options {
             line_limit: 95,
+            alias_position: 65,
+            alias_quotes: Some(false),
             indent: Indent(Whitespace::Space(4)),
             keyword_case: Case::Upper,
             body_delimiter: Whitespace::NewLine(1),
@@ -33,7 +37,7 @@ impl Default for Options {
 }
 
 impl Options {
-    fn adheres_to_line_limit(&self, s: &str) -> bool {
+    pub fn adheres_to_line_limit(&self, s: &str) -> bool {
         s.lines().into_iter().all(|line| line.len() <= self.line_limit)
     }
 
@@ -108,6 +112,7 @@ pub trait Delimiter: ToString + Sized {
     }
 }
 
+#[derive(Clone)]
 pub enum Whitespace {
     None,
     Space(u32),
@@ -143,6 +148,16 @@ pub struct Comma {
     after: Whitespace,
 }
 
+impl Comma {
+    pub fn as_whitespace(&self) -> Whitespace {
+        Whitespace::Combo(vec![
+            self.before.clone(),
+            Whitespace::Space(1),
+            self.after.clone(),
+        ])
+    }
+}
+
 impl ToString for Comma {
     fn to_string(&self) -> String {
         format!("{},{}", self.before.to_string(), self.after.to_string())
@@ -155,9 +170,19 @@ pub struct Indent(Whitespace);
 
 impl Indent {
     pub fn apply(&self, s: &str, i: usize) -> String {
-        let space = self.0.to_string();
-        let repeated_space = (0..i).into_iter().map(|_| space.clone()).collect::<String>();
+        let repeated_space = self.at_level(i);
         let newline = format!("\n{}", repeated_space);
         s.replace("\n", &newline)
+    }
+
+    pub fn at_level(&self, i: usize) -> String {
+        let space = self.0.to_string();
+        (0..i).into_iter().map(|_| space.clone()).collect::<String>()
+    }
+}
+
+impl ToString for Indent {
+    fn to_string(&self) -> String {
+        self.0.to_string()
     }
 }

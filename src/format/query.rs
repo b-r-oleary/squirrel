@@ -1,5 +1,5 @@
 use sqlparser::ast::Statement;
-use sqlparser::ast::{Query, Fetch, Expr, Cte, SetExpr, Select, OrderByExpr, TableAlias, Ident};
+use sqlparser::ast::{Query, Fetch, Expr, Cte, SetExpr, Select, OrderByExpr, TableAlias, Ident, SelectItem};
 
 use crate::options::{Delimiter, Options};
 use crate::format::base::Format;
@@ -113,12 +113,6 @@ impl Format for OrderByExpr {
             Some(false) => format!("{} {}", Keyword::Desc.format(opt, 0), expr),
             None => expr
         }
-    }
-}
-
-impl Format for Select {
-    fn format(&self, opt: &Options, indent: usize) -> String {
-        unimplemented!()
     }
 }
 
