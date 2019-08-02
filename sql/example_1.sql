@@ -1,0 +1,1 @@
+select * from public.actions_fat af join event e on e.id = af.event_id
