@@ -14,6 +14,14 @@ pub enum Keyword {
     OrderBy,
     Select,
     With,
+    Join,
+    InnerJoin,
+    LeftJoin,
+    RightJoin,
+    OuterJoin,
+    FullOuterJoin,
+    On,
+    Using,
 }
 
 impl Format for Keyword {
